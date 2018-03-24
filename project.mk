@@ -3,11 +3,11 @@
 #------------------------------------------------------------------------------
 
 # Project name
-PROJECT_NAME=myProject
+PROJECT_NAME=ej1
 
 # Project path 
 # (relative to this folder, leave void if the project is in this folder)
-PROJECT_PATH=
+PROJECT_PATH=misProyectos
 
 #------------------------------------------------------------------------------
 # Examples
