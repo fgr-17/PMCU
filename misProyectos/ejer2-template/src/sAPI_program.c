@@ -49,12 +49,6 @@ antirreb_t antirreb_tecla2;
 /*==================[declaraciones de funciones internas]====================*/
 void fsmBlinky(void);
 
-void fsmAntirrebote1 (void);
-void Inicializar_fsmAntirrebote1 (void);
-
-void fsmAntirrebote2 (void);
-void Inicializar_fsmAntirrebote2 (void);
-
 void fsmAntirrebote (antirreb_t*antirreb);
 void Inicializar_fsmAntirrebote (antirreb_t*antirreb, gpioMap_t tecla_asigada);
 
