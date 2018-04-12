@@ -70,6 +70,16 @@ char errorCode = 0;
 /*==================[external functions definition]==========================*/
 
 /*------------------------------------------------------------------*
+schedulerUpdatePeriod()
+Esta directiva solo modifica el periodo de una tarea
+-*------------------------------------------------------------------*/
+void schedulerUpdatePeriod( int32_t index, int32_t periodo ) {
+	schedulerTasks[index].period = periodo;
+	return;
+}
+
+
+/*------------------------------------------------------------------*
 schedulerDispatchTasks()
 This is the 'dispatcher' function. When a task (function)
 is due to run, schedulerDispatchTasks() will run it.

@@ -52,7 +52,7 @@ extern "C" {
 /* The maximum number of tasks required at any one time during the execution
    of the program. MUST BE ADJUSTED FOR EACH NEW PROJECT */
 #ifndef SCHEDULER_MAX_TASKS
-   #define SCHEDULER_MAX_TASKS   (3)
+   #define SCHEDULER_MAX_TASKS   (4)
 #endif
 
 /*==================[typedef]================================================*/
@@ -75,6 +75,9 @@ typedef struct{
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+
+// FUNCION QUE ACTUALIZA EL PERIODO DE UNA TAREA
+void schedulerUpdatePeriod( int32_t index, int32_t periodo );
 
 // FUNCION que contiene el despachador de tareas.
 void schedulerDispatchTasks( void );

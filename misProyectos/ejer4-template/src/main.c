@@ -42,15 +42,18 @@
 #include "cooperativeOs_scheduler.h" // <= scheduler and system initialization header
 #include "sapi.h"
 
+#include "colas_datos.h"
+
+#include "uart.h"
+#include "leds.h"
+
 /*==================[macros and definitions]=================================*/
 DEBUG_PRINT_ENABLE
 
-#define BLINK_TIME_PERIOD 500
-#define CONSOLE_TIME_PERIOD 500
+#define BLINK_TIME_PERIOD 50
+#define CONSOLE_TIME_PERIOD 50
 
 /*==================[definiciones de datos internos]=========================*/
-
-static bool_t ledState = OFF;
 
 static uint8_t menu[] =
 		"\n\r"
@@ -66,7 +69,6 @@ static uint8_t menu[] =
 
 /*==================[declaraciones de funciones internas]====================*/
 
-static void taskBlinkLed(void);
 static void taskMenuUpdate(void);
 
 
@@ -75,17 +77,28 @@ static void taskMenuUpdate(void);
 /*==================[funcion principal]======================================*/
 
 int main( void ){
+
 	//Inicializar el hardware, perifericos, puertos, clock, etc.
 	boardConfig();
 	// Inicializar UART_USB como salida de consola
-	debugPrintConfigUart( UART_USB, 115200 );
+	debugPrintConfigUart( UART_USB, UART_BAUD_RATE );
 	debugPrintlnString( "UART_USB configurada.\n\r" );
+
+	InicializarCola(&colaRx);
+	InicializarCola(&colaTx);
+
+	uartWriteString(UART_USB, menu);
 
 	//FUNCION que inicializa el planificador de tareas
 	schedulerInit();
 	//Cargar las tareas del sistema operativo con sus periodicidades
-	schedulerAddTask( (sAPI_FuncPtr_t) taskBlinkLed, 0, BLINK_TIME_PERIOD );
-	schedulerAddTask( (sAPI_FuncPtr_t) taskMenuUpdate, 1, CONSOLE_TIME_PERIOD );
+	tareaBlinkyID = schedulerAddTask( (sAPI_FuncPtr_t) taskBlinkLed, 0, BLINK_TIME_PERIOD );
+// 	schedulerAddTask( (sAPI_FuncPtr_t) taskMenuUpdate, 1, CONSOLE_TIME_PERIOD );
+	schedulerAddTask( (sAPI_FuncPtr_t) taskActualizarLeds, 1, BLINK_TIME_PERIOD );
+
+	schedulerAddTask( (sAPI_FuncPtr_t) taskUARTPutChar, 3, UART_PUT_CHAR_TIME_PERIOD );
+	schedulerAddTask( (sAPI_FuncPtr_t) taskUARTGetChar, 2, UART_GET_CHAR_TIME_PERIOD );
+
 
 	//Iniciar el planificador de tareas
 	schedulerStart( 1 );
@@ -102,18 +115,14 @@ int main( void ){
 
 /*==================[definiciones de funciones internas]=====================*/
 
-void taskBlinkLed(void){
 
-	if (ledState == ON){
-		ledState = OFF; // Apago el pin
-	}
-	else{
-		ledState = ON; // Prendo el pin
-	}
 
-	// Use of digitalWrite
-	gpioWrite( LED3, ledState );
-}
+/**
+ * @fn static void taskMenuUpdate(void)
+ *
+ * @brief Tarea de impresion de menu
+ *
+ */
 
 static void taskMenuUpdate(void){
 
