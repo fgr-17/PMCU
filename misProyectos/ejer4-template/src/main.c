@@ -87,7 +87,7 @@ int main( void ){
 	InicializarCola(&colaRx);
 	InicializarCola(&colaTx);
 
-	uartWriteString(UART_USB, menu);
+	// uartWriteString(UART_USB, menu);
 
 	//FUNCION que inicializa el planificador de tareas
 	schedulerInit();

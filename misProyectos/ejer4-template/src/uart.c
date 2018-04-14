@@ -41,7 +41,7 @@ t_cola colaRx;
 void taskUARTGetChar (void){
 
 	uint8_t lineaRecibida [2] = " ";
-	if (uartReadByte( UART_USB, lineaRecibida ) != FALSE) {
+	while(uartReadByte( UART_USB, lineaRecibida ) != FALSE) {
 		lineaRecibida[1] = '\0',
 		EscribirCola(&colaRx, lineaRecibida[0]);
 	}
@@ -58,7 +58,7 @@ void taskUARTPutChar (void) {
 
 	uint8_t byteLeido[2] = " ";
 
-	if(LeerCola(&colaTx, byteLeido) != LEER_COLA_COLA_VACIA)
+	while(LeerCola(&colaTx, byteLeido) != LEER_COLA_COLA_VACIA)
 	{
 		byteLeido[1] = '\0',
 		printString(UART_USB, byteLeido);
