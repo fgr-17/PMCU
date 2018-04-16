@@ -12,6 +12,7 @@
  */
 
 #include <stdint.h>
+#include <string.h>
 #include "sapi.h"
 
 
@@ -27,10 +28,30 @@
 t_cola colaTx;
 t_cola colaRx;
 
+#define BUF_STRING_L	32
+
+uint8_t bufStringRX [BUF_STRING_L];
+
+
 /* =======================================================================================
  * 								IMPLEMENTACION DE FUNCIONES
  * =======================================================================================
  */
+
+/**
+ * @brief void InicializarUART (void)
+ *
+ */
+
+void InicializarUART (void)
+{
+
+	InicializarCola(&colaRx);
+	InicializarCola(&colaTx);
+	memset(bufStringRX, 0);
+	return;
+}
+
 
 /**
  * @brief void taskUARTGetChar (void)

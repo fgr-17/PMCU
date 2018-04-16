@@ -84,9 +84,6 @@ int main( void ){
 	debugPrintConfigUart( UART_USB, UART_BAUD_RATE );
 	debugPrintlnString( "UART_USB configurada.\n\r" );
 
-	InicializarCola(&colaRx);
-	InicializarCola(&colaTx);
-
 	// uartWriteString(UART_USB, menu);
 
 	//FUNCION que inicializa el planificador de tareas
@@ -117,43 +114,6 @@ int main( void ){
 
 
 
-/**
- * @fn static void taskMenuUpdate(void)
- *
- * @brief Tarea de impresion de menu
- *
- */
-
-static void taskMenuUpdate(void){
-
-	uint8_t receiveByte;
-
-	if (uartReadByte( UART_USB, &receiveByte ) != FALSE) {
-
-		if(receiveByte != 0)
-			switch (receiveByte) {
-			case 't':
-			case 'T':
-				uartWriteString(UART_USB, menu);
-				debugPrintlnString( "Caracter recibido: T\n\r");
-				break;
-
-			case 'L':
-				uartWriteString(UART_USB, menu);
-				uartWriteString(UART_USB, "Caracter recibido: L\n\r");
-				break;
-
-			case '\n':
-			case '\r':
-				break;
-
-			default:
-				uartWriteString(UART_USB, menu);
-				uartWriteString(UART_USB, "Caracter recibido fuera de menu\n\r");
-				break;
-			}
-	}
-}
 /*==================[definiciones de funciones externas]=====================*/
 
 /*==================[fin del archivo]========================================*/
