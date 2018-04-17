@@ -53,7 +53,7 @@ int32_t tareaBlinkyID;
 
 void taskActualizarLeds();
 void taskBlinkLed(void);
-
+void apagarLeds (void);
 static int32_t AsciiAEntero (uint8_t*cadena, int32_t nCifras);
 /* =========================================================================================
  * 					IMPLEMENTACION DE FCS
@@ -95,11 +95,25 @@ void taskBlinkLed(void){
 	case USUARIO_ENTRANDO:
 		gpioWrite(ALARMA_LED_DESARMADA, ON);
 		break;
-	default:
+   default:
+      apagarLeds();
+
+   }
+
+}
+
+/**
+ * @fn apagarLeds
+ *
+ * @brief apago todos los leds
+ */
+
+void apagarLeds (void)
+{
+   gpioWrite(ALARMA_LED_DESARMADA, ON);
 
 
-	}
-
+   return;
 }
 
 /**
