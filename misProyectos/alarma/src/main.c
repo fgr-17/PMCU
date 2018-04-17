@@ -69,9 +69,6 @@ static uint8_t menu[] =
 
 /*==================[declaraciones de funciones internas]====================*/
 
-static void taskMenuUpdate(void);
-
-
 /*==================[declaraciones de funciones externas]====================*/
 
 /*==================[funcion principal]======================================*/

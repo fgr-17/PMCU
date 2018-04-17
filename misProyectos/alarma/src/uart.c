@@ -15,8 +15,6 @@
 #include <string.h>
 #include "sapi.h"
 
-
-
 #include "colas_datos.h"
 #include "uart.h"
 
@@ -28,18 +26,15 @@
 t_cola colaTx;
 t_cola colaRx;
 
-#define BUF_STRING_L	32
-
-uint8_t bufStringRX [BUF_STRING_L];
-
-
 /* =======================================================================================
  * 								IMPLEMENTACION DE FUNCIONES
  * =======================================================================================
  */
 
 /**
- * @brief void InicializarUART (void)
+ * @fn void InicializarUART (void)
+ *
+ * @brief Inicializacion de estructuras asociadas a la UART
  *
  */
 
@@ -48,29 +43,35 @@ void InicializarUART (void)
 
 	InicializarCola(&colaRx);
 	InicializarCola(&colaTx);
-	memset(bufStringRX, 0);
 	return;
 }
 
 
 /**
- * @brief void taskUARTGetChar (void)
+ * @fn void taskUARTGetChar (void)
+ *
+ * @brief Descargo la fifo de la UART a la cola de recepcion.
  *
  * @author Roux, Federico G.
  */
 
+
 void taskUARTGetChar (void){
 
-	uint8_t lineaRecibida [2] = " ";
+	uint8_t lineaRecibida [UART_LINEA_RECIBIDA_N];
+
+	memset(lineaRecibida, NULL, UART_LINEA_RECIBIDA_N);
+
 	while(uartReadByte( UART_USB, lineaRecibida ) != FALSE) {
-		lineaRecibida[1] = '\0',
 		EscribirCola(&colaRx, lineaRecibida[0]);
 	}
 	return;
 }
 
 /**
- * @brief void taskUARTPutChar (void)
+ * @fn void taskUARTPutChar (void)
+ *
+ * @brief Tarea que extrae los bytes de la cola de transmision y los escribe en la fifo de la UART
  *
  * @author Roux, Federico G.
  */

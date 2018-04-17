@@ -13,13 +13,13 @@
 #define TECLA_ABAJO			OFF
 #define TECLA_ARRIBA		ON
 
-typedef enum {BUTTON_UP, BUTTON_FALLING, BUTTON_DOWN, BUTTON_RAISING} fsmAntirrebote_t;
+typedef enum {BUTTON_UP, BUTTON_FALLING, BUTTON_DOWN, BUTTON_RAISING} antirreboteMEF_t;
 typedef enum {TECLA_PRESIONADA, TECLA_SUELTA, TECLA_ERROR} tecla_t;
 
 
 typedef struct
 {
-	fsmAntirrebote_t estado;
+	antirreboteMEF_t estado;
 	delay_t delay;
 	tick_t tiempo_ventana;
 	gpioMap_t tecla_pin;

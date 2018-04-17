@@ -13,10 +13,25 @@
  * ======================================================================================
  */
 
-#define UART_GET_CHAR_TIME_PERIOD 25
-#define UART_PUT_CHAR_TIME_PERIOD 25
+/**
+ * @defgroup UART_DEFINES
+ * @brief Constantes asociadas a la UART
+ * @{
+ */
 
+/** @brief tiempo de actualizacion de la tarea GetChar */
+#define UART_GET_CHAR_TIME_PERIOD 25
+/** @brief tiempo de actualizacion de la tarea PutChar */
+#define UART_PUT_CHAR_TIME_PERIOD 25
+/** @brief Baud Rate de la UART */
 #define UART_BAUD_RATE 115200
+/** @brief cantidad de bytes del buffer temporal de recepcion */
+#define UART_LINEA_RECIBIDA_N		32
+
+/**
+ * @}
+ */
+
 /* ======================================================================================
  * 								FUNCIONES EXTERNAS
  * ======================================================================================

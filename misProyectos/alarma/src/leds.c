@@ -17,6 +17,9 @@
 #include "cooperativeOs_scheduler.h" // <= scheduler and system initialization header
 #include "sapi.h"        // <= Biblioteca sAPI
 //#include "antirreb.h"
+
+#include "alarma.h"
+
 #include "colas_datos.h"
 
 #include "uart.h"
@@ -66,16 +69,37 @@ static int32_t AsciiAEntero (uint8_t*cadena, int32_t nCifras);
 
 void taskBlinkLed(void){
 
-   if (ledState == ON){
-	  ledState = OFF; // Apago el pin
-   }
-   else{
-	  ledState = ON; // Prendo el pin
-   }
+	switch(alarmaEstado) {
 
-   // Use of digitalWrite
-   // gpioWrite( LED3, ledState );
-   gpioToggle( ledActivo );
+	case DESARMADA:
+		gpioWrite(ALARMA_LED_DESARMADA, ON);
+		break;
+	case ARMADA:
+		gpioWrite(ALARMA_LED_DESARMADA, ON);
+		break;
+	case DISPARADA:
+		if (ledState == ON){
+		  ledState = OFF; // Apago el pin
+	   }
+	   else{
+		  ledState = ON; // Prendo el pin
+	   }
+	   gpioToggle(ALARMA_LED_DISPARADA );
+		break;
+	case ESPERANDO_PASS:
+		gpioWrite(ALARMA_LED_ESPERANDO_PASS, ON);
+		break;
+	case USUARIO_SALIENDO:
+		gpioWrite(ALARMA_LED_DESARMADA, ON);
+		break;
+	case USUARIO_ENTRANDO:
+		gpioWrite(ALARMA_LED_DESARMADA, ON);
+		break;
+	default:
+
+
+	}
+
 }
 
 /**

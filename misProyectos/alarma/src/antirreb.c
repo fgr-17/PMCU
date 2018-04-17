@@ -8,20 +8,25 @@
 #include <stdint.h>
 #include "sapi.h"        // <= Biblioteca sAPI
 
-#include <antirreb.h>
+#include "antirreb.h"
 
+/* ======================= [variables globales] ======================= */
 
-antirreb_t antirreb_tecla1;
-antirreb_t antirreb_tecla2;
+antirreboteMEF_t antirreboteMEF_tecla1;
+antirreboteMEF_t antirreboteMEF_tecla2;
+antirreboteMEF_t antirreboteMEF_tecla3;
+antirreboteMEF_t antirreboteMEF_tecla4;
 
+/* ======================= [implementacion de funciones] ======================= */
 
 
 /**
- * @fn void Inicializar_fsmAntirrebote2 (void)
+ * @fn void Inicializar_fsmAntirrebote (void)
  *
+ * @brief inicializacion de la maquina de estados.
  */
 
-void Inicializar_fsmAntirrebote (antirreb_t*antirreb, gpioMap_t tecla_asigada ){
+void inicializarAntirreboteMEF (antirreb_t*antirreb, gpioMap_t tecla_asigada ){
 
 	antirreb->estado = BUTTON_UP;
 	antirreb->t = TECLA_SUELTA;
@@ -33,14 +38,13 @@ void Inicializar_fsmAntirrebote (antirreb_t*antirreb, gpioMap_t tecla_asigada ){
  *
  * @fn void fsmAntirrebote (void)
  *
- *
+ * @brief maquina de estados antirrebote parametrizada
  *
  */
 
-void fsmAntirrebote (antirreb_t*antirreb){
+void antirreboteMEF (antirreb_t*antirreb){
 
 	bool_t tecValue = TECLA_ARRIBA;
-
 
 	switch(antirreb->estado)
 	{
@@ -112,7 +116,7 @@ void fsmAntirrebote (antirreb_t*antirreb){
 		break;
 
 	default:
-		Inicializar_fsmAntirrebote(antirreb, antirreb->tecla_pin);
+		inicializarAntirreboteMEF(antirreb, antirreb->tecla_pin);
 
 	}
 
