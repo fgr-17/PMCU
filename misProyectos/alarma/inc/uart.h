@@ -45,8 +45,7 @@ extern void taskUARTPutChar (void);
  * =======================================================================================
  */
 
-extern t_cola colaTx;
-extern t_cola colaRx;
+
 
 
 #endif /* MISPROYECTOS_EJER4_TEMPLATE_INC_UART_H_ */

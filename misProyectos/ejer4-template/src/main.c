@@ -44,6 +44,8 @@
 
 #include "colas_datos.h"
 
+#include "alarma.h"
+
 #include "uart.h"
 #include "leds.h"
 
@@ -69,9 +71,6 @@ static uint8_t menu[] =
 
 /*==================[declaraciones de funciones internas]====================*/
 
-static void taskMenuUpdate(void);
-
-
 /*==================[declaraciones de funciones externas]====================*/
 
 /*==================[funcion principal]======================================*/
@@ -86,18 +85,22 @@ int main( void ){
 
 	InicializarCola(&colaRx);
 	InicializarCola(&colaTx);
+	inicializarTaskAlarmaMEF();
+	inicializarSensores();
+	inicializarTimeout();
 
 	// uartWriteString(UART_USB, menu);
 
 	//FUNCION que inicializa el planificador de tareas
 	schedulerInit();
 	//Cargar las tareas del sistema operativo con sus periodicidades
-	tareaBlinkyID = schedulerAddTask( (sAPI_FuncPtr_t) taskBlinkLed, 0, BLINK_TIME_PERIOD );
-// 	schedulerAddTask( (sAPI_FuncPtr_t) taskMenuUpdate, 1, CONSOLE_TIME_PERIOD );
-	schedulerAddTask( (sAPI_FuncPtr_t) taskActualizarLeds, 1, BLINK_TIME_PERIOD );
+	schedulerAddTask( (sAPI_FuncPtr_t) taskBlinkLed, 0, BLINK_TIME_PERIOD );
+ 	schedulerAddTask( (sAPI_FuncPtr_t) taskLeerSensores, 1, LEER_SENSORES_PERIODO );
+ 	schedulerAddTask( (sAPI_FuncPtr_t) taskTimeout, 2, TIMEOUT_PERIODO );
+	schedulerAddTask( (sAPI_FuncPtr_t) taskAlarmaMEF, 3, ALARMA_MEF_PERIODO );
 
-	schedulerAddTask( (sAPI_FuncPtr_t) taskUARTPutChar, 3, UART_PUT_CHAR_TIME_PERIOD );
-	schedulerAddTask( (sAPI_FuncPtr_t) taskUARTGetChar, 2, UART_GET_CHAR_TIME_PERIOD );
+	schedulerAddTask( (sAPI_FuncPtr_t) taskUARTPutChar, 4, UART_PUT_CHAR_TIME_PERIOD );
+	schedulerAddTask( (sAPI_FuncPtr_t) taskUARTGetChar, 5, UART_GET_CHAR_TIME_PERIOD );
 
 
 	//Iniciar el planificador de tareas

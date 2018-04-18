@@ -28,11 +28,15 @@ void InicializarCola (t_cola* cola);
 int8_t EscribirCola (t_cola*cola, uint8_t dato_a_escribir);
 int8_t LeerCola(t_cola*cola, uint8_t*dato_leido);
 int32_t EscribirCadenaCola (uint8_t *cadena, t_cola*cola);
+int32_t lineaColaAString (int8_t*string, int32_t largo, t_cola cola);
 
 /* =======================================================================================
  * 								VARIABLES GLOBALES
  * =======================================================================================
  */
+
+t_cola colaTx;
+t_cola colaRx;
 
 /* =======================================================================================
  * 							IMPLEMENTACION DE FUNCIONES
@@ -143,5 +147,32 @@ int32_t EscribirCadenaCola (uint8_t *cadena, t_cola*cola)
 	}
 
 	return 0;
+}
+
+/**
+ * @fn colaAString (int8_t*string, cola_t cola)
+ *
+ * @brief copio una linea de una cola de datos a un string
+ */
+
+int32_t lineaColaAString (int8_t*string, int32_t largo, t_cola cola) {
+
+	int32_t i;
+
+	for(i = 0; i < largo; i++) {
+
+		if(LeerCola(&cola, &string[i]) != LEER_COLA_COLA_VACIA)
+			return 1;			// salgo porque la cola de datos esta vacia
+
+		if(string[i] == '\n') {
+			string[i] = '\0';	// cambio el enter por un fin de cadena
+			return 0;			// salgo porque llegue al final de cadena
+		}
+
+	}
+
+	return 2;					// llegue al final de la cadena y siguen quedando datos o no llegue a un enter.
+
+
 }
 

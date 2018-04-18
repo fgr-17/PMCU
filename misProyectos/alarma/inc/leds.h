@@ -16,8 +16,8 @@
 #define LEDS_L ( sizeof(leds) / sizeof(gpioMap_t) )
 #define PERIODOS_L ( sizeof(periodos) / sizeof( tick_t ) )
 
-#define DELAY_L		5
-
+#define DELAY_L				5
+#define BLINK_LED_PERIODO	50
 /* =========================================================================================
  * 					FCS EXTERNAS
  * =========================================================================================

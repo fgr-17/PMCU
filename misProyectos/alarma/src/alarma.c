@@ -8,6 +8,7 @@
 /* =================================== [inclusion de archivos] ============================= */
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 #include "sapi.h"
 
 #include "colas_datos.h"
@@ -17,8 +18,16 @@
 
 /* =================================== [funciones generales] ============================= */
 
-static int32_t lineaColaAString (int8_t*string, int32_t largo, t_cola cola);
+static void mensajeAlarma (int8_t * mensaje);
+static bool_t sensorVentanaActivado (void);
+static bool_t sensorPuertaActivado (void);
+static void inicializarTimeout (timeout_t*tout);
+static void activarTimeout (timeout_t*tout, uint32_t timeout_ms);
 
+void inicializarSensores (void);
+void taskLeerSensores (void);
+void taskTimeout (timeout_t*tout);
+void taskAlarmaMEF (void);
 /* =================================== [variables globales] ============================= */
 
 /** @brief variable de estado de la MEF de alarma */
@@ -47,7 +56,7 @@ timeout_t tout1;
 void inicializarTaskAlarmaMEF (void){
 
 	alarmaEstado = DESARMADA;
-	inicializarTimeout(tout1);
+	inicializarTimeout(&tout1);
 
 	return;
 }
@@ -60,46 +69,136 @@ void inicializarTaskAlarmaMEF (void){
  *
  */
 
-/** @brief tiempo que espero si el usuario quiso armar la alarma con un pass incorrecto */
-#define ALARMA_TIMEOUT_PASSWORD_ARMAR_INCORRECTO_MS			20000
-/** @brief string con el password. Deberia estar guardado en la flash y poder cambiarse desde un menu tecnico */
-#define ALARMA_STRING_PASSWORD		"1234"
-/** @brief string para avisar que voy a salir */
-#define ALARMA_STRING_SALIR			"salgo"
-
 void taskAlarmaMEF (void)
 {
 	uint8_t cadena [CADENA_L];
+
+	static uint8_t cantidadIntentosClaveMal = 0;
 
 	switch(alarmaEstado) {
 
 	case DESARMADA:
 
-		if(colaRx.datosNuevos){
-
-			colaRx.datosNuevos = 0;								// bajo el flag de datos nuevos
-			lineaColaAString(cadena, CADENA_L, colaRx);			// saco linea de la cola de datos a un string
+		if(colaRx.datosNuevos){												// pregunto si tengo datos nuevos
+			colaRx.datosNuevos = 0;											// bajo el flag de datos nuevos
+			lineaColaAString(cadena, CADENA_L, colaRx);						// saco linea de la cola de datos a un string
 			if(strcmp(cadena, ALARMA_STRING_SALIR)) {
 
+				mensajeAlarma("Ingrese la contraseña:");
+				alarmaEstado = ESPERANDO_PASS;
 			}
 			else
 			{
 				// Recibi un comando incorrecto
-				EscribirCadenaCola ("Comando incorrecto\n\r", &colaTx);
-				alarmaEstado = DESARMADA;
+				mensajeAlarma ("Comando incorrecto");						// mando mensaje al display
+				activarTimeout(&tout1, ALARMA_TIMEOUT_ESPERANDO_PASS_MS);	// empiezo a contar timeout
+				alarmaEstado = DESARMADA;									// cambio de estado
 			}
-
 		}
 		break;
+	case ESPERANDO_PASS:
+
+		if(colaRx.datosNuevos){												// pregunto si tengo datos nuevos
+			colaRx.datosNuevos = 0;											// bajo el flag de datos nuevos
+			lineaColaAString(cadena, CADENA_L, colaRx);						// saco linea de la cola de datos a un string
+
+			if(strcmp(cadena, ALARMA_STRING_PASSWORD)) {
+				mensajeAlarma("Alarma armada.\nTiene 60s para salir.");
+				activarTimeout(&tout1, ALARMA_TIMEOUT_SALIENDO_MS);			// empiezo a contar timeout para salir
+				alarmaEstado = USUARIO_SALIENDO;
+			}
+			else
+			{
+				// Recibi un comando incorrecto
+				mensajeAlarma ("Contraseña incorrecta");					// mando mensaje al display
+				cantidadIntentosClaveMal++;									// incremento el contador de clave erronea
+
+				if(cantidadIntentosClaveMal >= ALARMA_CANTIDAD_INTENTOS_CLAVE_MAL_MAX) {
+					mensajeAlarma ("Se ingreso demasiadas veces la clave incorrecta.\nAlarma activada");
+					alarmaEstado = DISPARADA;
+
+				}
+
+			}
+		}
+
+		if(tout1.estado == FINALIZO) {										// termino el timeout por esperar pass
+			tout1.estado = INACTIVO;										// bajo el flag del timeout
+			cantidadIntentosClaveMal = 0;									// reinicio el contador de intentos
+			alarmaEstado = DESARMADA;										// vuelvo al estado inicial
+		}
+
+
+
+		break;
+
+	case USUARIO_SALIENDO:
+
+		if(tout1.estado == FINALIZO) {										// termino el timeout por esperar salida de usuario
+			tout1.estado = INACTIVO;										// bajo el flag del timeout
+			cantidadIntentosClaveMal = 0;									// reinicio el contador de intentos
+			alarmaEstado = ARMADA;											// voy al estado armada
+		}
+
+		if(sensorVentanaActivado())
+			alarmaEstado = DISPARADA;
+
+		break;
 	case ARMADA:
+
+		if(sensorVentanaActivado()) {
+			alarmaEstado = DISPARADA;
+		}
+		else if(sensorPuertaActivado()) {
+			alarmaEstado = USUARIO_ENTRANDO;
+			activarTimeout(&tout1, ALARMA_TIMEOUT_ENTRANDO_MS);				// empiezo a contar timeout para ENTRAR
+		}
+
 		break;
 	case DISPARADA:
+		if(colaRx.datosNuevos){												// pregunto si tengo datos nuevos
+			colaRx.datosNuevos = 0;											// bajo el flag de datos nuevos
+			lineaColaAString(cadena, CADENA_L, colaRx);						// saco linea de la cola de datos a un string
+
+			if(strcmp(cadena, ALARMA_STRING_PASSWORD)) {
+				mensajeAlarma("Alarma desarmada");
+				alarmaEstado = DESARMADA;
+			}
+			else {
+				// Recibi un comando incorrecto
+				mensajeAlarma ("Contraseña incorrecta");					// mando mensaje al display
+			}
+		}
 		break;
-	case ESPERANDO_PASS:
-		break;
-	case USUARIO_SALIENDO:
-		break;
+
+
 	case USUARIO_ENTRANDO:
+
+		if(colaRx.datosNuevos){												// pregunto si tengo datos nuevos
+			colaRx.datosNuevos = 0;											// bajo el flag de datos nuevos
+			lineaColaAString(cadena, CADENA_L, colaRx);						// saco linea de la cola de datos a un string
+
+			if(strcmp(cadena, ALARMA_STRING_PASSWORD)) {
+				mensajeAlarma("Alarma desarmada");
+				alarmaEstado = DESARMADA;
+			}
+			else {
+				// Recibi un comando incorrecto
+				mensajeAlarma ("Contraseña incorrecta");					// mando mensaje al display
+				cantidadIntentosClaveMal++;									// incremento el contador de clave erronea
+
+				if(cantidadIntentosClaveMal >= ALARMA_CANTIDAD_INTENTOS_CLAVE_MAL_MAX) {
+					mensajeAlarma ("Se ingreso demasiadas veces la clave incorrecta.\nAlarma activada");
+					alarmaEstado = DISPARADA;
+				}
+
+			}
+		}
+		else if(tout1.estado == FINALIZO) {										// termino el timeout por esperar salida de usuario
+			tout1.estado = INACTIVO;										// bajo el flag del timeout
+			alarmaEstado = DISPARADA;										// voy al estado armada
+			cantidadIntentosClaveMal = 0;
+		}
 		break;
 	default:
 		inicializarTaskAlarmaMEF();
@@ -212,13 +311,13 @@ void inicializarSensores (void) {
 }
 
 /**
- * @fn bool sensorVentanaActivada (void)
+ * @fn bool sensorVentanaActivado (void)
  *
  * @brief chequeo si alguno de los sensores de ventana se activo
  *
  */
 
-bool_t sensorVentanaActivada (void) {
+bool_t sensorVentanaActivado (void) {
 
 	if(antirreboteMEF_ventana1.t == TECLA_PRESIONADA){
 		antirreboteMEF_ventana1.t = TECLA_SUELTA;
@@ -237,28 +336,39 @@ bool_t sensorVentanaActivada (void) {
 }
 
 /**
- * @fn colaAString (int8_t*string, cola_t cola)
+ * @fn bool sensorPuertaActivado (void)
  *
- * @brief copio una linea de una cola de datos a un string
+ * @brief chequeo si alguno de los sensores de ventana se activo
+ *
  */
 
-int32_t lineaColaAString (int8_t*string, int32_t largo, t_cola cola) {
+bool_t sensorPuertaActivado (void) {
 
-	int32_t i;
-
-	for(i = 0; i < largo; i++) {
-
-		if(LeerCola(&cola, &string[i]) != LEER_COLA_COLA_VACIA)
-			return 1;			// salgo porque la cola de datos esta vacia
-
-		if(string[i] == '\n') {
-			string[i] = '\0';	// cambio el enter por un fin de cadena
-			return 0;			// salgo porque llegue al final de cadena
-		}
-
+	if(antirreboteMEF_puerta.t == TECLA_PRESIONADA){
+		antirreboteMEF_ventana1.t = TECLA_SUELTA;
+		return TRUE;
 	}
 
-	return 2;					// llegue al final de la cadena y siguen quedando datos o no llegue a un enter.
+}
+
+
+/**
+ * @fn mensajeAlarma (int8_t * mensaje)
+ *
+ * @brief envio un mensaje por el display de la alarma
+ *
+ */
+
+void mensajeAlarma (int8_t * mensaje) {
+
+
+	int8_t mensajeCompleto[CADENA_L];
+
+	sprintf(mensajeCompleto, "%s\n\r", mensaje);
+
+	if(EscribirCadenaCola (mensajeCompleto, &colaTx) != ESCRIBIR_COLA_COLA_LLENA)
+
+		return;
 
 
 }

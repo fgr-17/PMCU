@@ -54,5 +54,14 @@ extern void InicializarCola (t_cola* cola);
 extern int8_t EscribirCola (t_cola*cola, uint8_t dato_a_escribir);
 extern int8_t LeerCola(t_cola*cola, uint8_t*dato_leido);
 extern int32_t EscribirCadenaCola (uint8_t *cadena, t_cola*cola);
+extern int32_t lineaColaAString (int8_t*string, int32_t largo, t_cola cola);
+/* ======================================================================================
+ * 								VARIABLES EXTERNAS
+ * ======================================================================================
+ */
+
+
+extern t_cola colaTx;
+extern t_cola colaRx;
 
 #endif /* MISPROYECTOS_EJER4_TEMPLATE_INC_COLAS_DATOS_H_ */
