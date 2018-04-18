@@ -28,7 +28,7 @@ void InicializarCola (t_cola* cola);
 int8_t EscribirCola (t_cola*cola, uint8_t dato_a_escribir);
 int8_t LeerCola(t_cola*cola, uint8_t*dato_leido);
 int32_t EscribirCadenaCola (uint8_t *cadena, t_cola*cola);
-int32_t lineaColaAString (int8_t*string, int32_t largo, t_cola cola);
+int32_t lineaColaAString (int8_t*string, int32_t largo, t_cola* cola);
 
 /* =======================================================================================
  * 								VARIABLES GLOBALES
@@ -155,13 +155,13 @@ int32_t EscribirCadenaCola (uint8_t *cadena, t_cola*cola)
  * @brief copio una linea de una cola de datos a un string
  */
 
-int32_t lineaColaAString (int8_t*string, int32_t largo, t_cola cola) {
+int32_t lineaColaAString (int8_t*string, int32_t largo, t_cola*cola) {
 
 	int32_t i;
 
 	for(i = 0; i < largo; i++) {
 
-		if(LeerCola(&cola, &string[i]) != LEER_COLA_COLA_VACIA)
+		if(LeerCola(cola, &string[i]) == LEER_COLA_COLA_VACIA)
 			return 1;			// salgo porque la cola de datos esta vacia
 
 		if(string[i] == '\n') {

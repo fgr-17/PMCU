@@ -15,7 +15,7 @@
  */
 
 /** @brief tamano del buffer de la cola de datos */
-#define BUFFER_N 					64
+#define BUFFER_N 					256
 
 #define ESCRIBIR_COLA_COLA_LLENA	-1
 #define ESCRIBIR_COLA_EXITO			 0
@@ -54,7 +54,7 @@ extern void InicializarCola (t_cola* cola);
 extern int8_t EscribirCola (t_cola*cola, uint8_t dato_a_escribir);
 extern int8_t LeerCola(t_cola*cola, uint8_t*dato_leido);
 extern int32_t EscribirCadenaCola (uint8_t *cadena, t_cola*cola);
-extern int32_t lineaColaAString (int8_t*string, int32_t largo, t_cola cola);
+extern int32_t lineaColaAString (int8_t*string, int32_t largo, t_cola*cola);
 /* ======================================================================================
  * 								VARIABLES EXTERNAS
  * ======================================================================================

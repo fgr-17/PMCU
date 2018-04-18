@@ -1,6 +1,9 @@
-/* Copyright 2017, Agustin Bassi.
- * All rights reserved.
+/**
  *
+ * @file main.c
+ * @author Copyright 2017, Agustin Bassi. All rights reserved.
+ *
+ * @brief
  * This file is part sAPI library for microcontrollers.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,10 +34,10 @@
  */
 
 /*
- * Date: 2017-11-24
+ * @date 2017-11-24
  */
 
-/*==================[inlcusiones]============================================*/
+/*==================[inclusiones]============================================*/
 
 #include "main.h"
 
@@ -46,28 +49,31 @@
 
 #include "uart.h"
 #include "leds.h"
+#include "alarma.h"
 
 /*==================[macros and definitions]=================================*/
 DEBUG_PRINT_ENABLE
-
-#define BLINK_TIME_PERIOD 50
-#define CONSOLE_TIME_PERIOD 50
 
 /*==================[definiciones de datos internos]=========================*/
 
 static uint8_t menu[] =
 		"\n\r"
-		"********************* MENU *************************\n\r"
+		"********************* ALARMA *************************\n\r"
 		"\n\r"
-		"TEC1: cambia el tiempo de parpadeo del led activo.\n\r"
-		"TEC2: cambia el led activo.\n\r"
-		"T: permite ingresar un tiempo desde el puerto serie.\n\r"
-		"L: permite ingresar un led desde el puerto serie.\n\r"
+		"TEC1: Sensor Puerta.\n\r"
+		"TEC2-3-4: Sensores ventanas 1-3.\n\r"
+		"S: comando para salir del hogar. Espera 60s para salir.\n\r"
 		;
 
 /*==================[definiciones de datos externos]=========================*/
 
 /*==================[declaraciones de funciones internas]====================*/
+
+typedef enum {BLINK_LED_ID,
+			  ALARMA_MEF_ID, LEER_SENSORES_ID, TIMEOUT_ID,
+			  UART_PUT_CHAR, UART_GET_CHAR} tareasID_t;
+
+tareasID_t tareasID[SCHEDULER_MAX_TASKS];
 
 /*==================[declaraciones de funciones externas]====================*/
 
@@ -79,26 +85,32 @@ int main( void ){
 	boardConfig();
 	// Inicializar UART_USB como salida de consola
 	debugPrintConfigUart( UART_USB, UART_BAUD_RATE );
-	debugPrintlnString( "UART_USB configurada.\n\r" );
+	debugPrintlnString("UART_USB configurada.\n\r" );
+
+	inicializarTaskAlarmaMEF();
+	InicializarUART();
+	inicializarSensores();
 
 	// uartWriteString(UART_USB, menu);
 
-	//FUNCION que inicializa el planificador de tareas
+	// FUNCION que inicializa el planificador de tareas
 	schedulerInit();
-	//Cargar las tareas del sistema operativo con sus periodicidades
-	tareaBlinkyID = schedulerAddTask( (sAPI_FuncPtr_t) taskBlinkLed, 0, BLINK_TIME_PERIOD );
-// 	schedulerAddTask( (sAPI_FuncPtr_t) taskMenuUpdate, 1, CONSOLE_TIME_PERIOD );
-	schedulerAddTask( (sAPI_FuncPtr_t) taskActualizarLeds, 1, BLINK_TIME_PERIOD );
 
-	schedulerAddTask( (sAPI_FuncPtr_t) taskUARTPutChar, 3, UART_PUT_CHAR_TIME_PERIOD );
-	schedulerAddTask( (sAPI_FuncPtr_t) taskUARTGetChar, 2, UART_GET_CHAR_TIME_PERIOD );
-
+	// Cargar las tareas del sistema operativo con sus periodicidades
+	tareasID[BLINK_LED_ID] = schedulerAddTask( (sAPI_FuncPtr_t) taskBlinkLed, 0, BLINK_LED_PERIODO );
+	tareasID[ALARMA_MEF_ID] = schedulerAddTask( (sAPI_FuncPtr_t) taskAlarmaMEF, 1, ALARMA_MEF_PERIODO );
+	tareasID[LEER_SENSORES_ID] = schedulerAddTask( (sAPI_FuncPtr_t) taskLeerSensores, 2, LEER_SENSORES_PERIODO );
+	tareasID[TIMEOUT_ID] = schedulerAddTask( (sAPI_FuncPtr_t) taskTimeout, 3, TIMEOUT_PERIODO );
+	// tareas de la UART
+	tareasID[UART_PUT_CHAR] = schedulerAddTask( (sAPI_FuncPtr_t) taskUARTPutChar, 4, UART_PUT_CHAR_TIME_PERIOD );
+	tareasID[UART_GET_CHAR] = schedulerAddTask( (sAPI_FuncPtr_t) taskUARTGetChar, 5, UART_GET_CHAR_TIME_PERIOD );
 
 	//Iniciar el planificador de tareas
 	schedulerStart( 1 );
 
 	debugPrintlnString(menu);
-	//Lazo infinito
+
+	//printString(UART_USB, 27);
 
 	while(TRUE) {
 		//Ejecutar tareas

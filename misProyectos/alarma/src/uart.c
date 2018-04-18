@@ -59,10 +59,11 @@ void taskUARTGetChar (void){
 
 	uint8_t lineaRecibida [UART_LINEA_RECIBIDA_N];
 
-	memset(lineaRecibida, NULL, UART_LINEA_RECIBIDA_N);
+	memset(lineaRecibida, NULL, UART_LINEA_RECIBIDA_N);					// vacio el buffer a escribir
 
-	while(uartReadByte( UART_USB, lineaRecibida ) != FALSE) {
-		EscribirCola(&colaRx, lineaRecibida[0]);
+	while(uartReadByte( UART_USB, lineaRecibida ) != FALSE) {			// levanto un byte de la UART
+		EscribirCola(&colaRx, lineaRecibida[0]);						// lo bajo a la cola de datos
+		colaRx.datosNuevos = 1;											// señalo flag de datos nuevos
 	}
 	return;
 }
@@ -82,7 +83,9 @@ void taskUARTPutChar (void) {
 	while(LeerCola(&colaTx, byteLeido) != LEER_COLA_COLA_VACIA)
 	{
 		byteLeido[1] = '\0',
-		printString(UART_USB, byteLeido);
+		// printString(UART_USB, byteLeido);
+		uartWriteByte(UART_USB, byteLeido[0]);
+
 	}
 
 	return;

@@ -20,27 +20,32 @@
 #define ALARMA_SENSOR_VENTANA2				TEC3
 #define ALARMA_SENSOR_VENTANA3				TEC4
 
+/** leds utilizados para estados y sensores*/
 #define ALARMA_LED_DESARMADA				LEDG
-#define ALARMA_LED_ARMADA					LEDR
-#define ALARMA_LED_DISPARADA				LEDR
+#define ALARMA_LED_ARMADA					LED1
+#define ALARMA_LED_DISPARADA				LED1
 #define ALARMA_LED_ESPERANDO_PASS			LEDB
+#define ALARMA_LED_VENTANA1					LED1
+#define ALARMA_LED_VENTANA2					LED2
+#define ALARMA_LED_VENTANA3					LED3
 
-#define CADENA_L			64
+
+#define CADENA_L					64
 /** @brief periodo de ejecucion de la tarea timeout */
 #define TIMEOUT_PERIODO				50
 /** @brief periodo de ejecucion de la tarea sensores */
-#define LEER_SENSORES_PERIODO		100
+#define LEER_SENSORES_PERIODO		50
 /** @brief periodo de ejecucion de la tarea alarma MEF */
-#define ALARMA_MEF_PERIODO			100
+#define ALARMA_MEF_PERIODO			50
 
 /** @brief tiempo que espero si el usuario quiso armar la alarma con un pass incorrecto */
-#define ALARMA_TIMEOUT_PASSWORD_ARMAR_INCORRECTO_MS			20000
+#define ALARMA_TIMEOUT_PASSWORD_ARMAR_INCORRECTO_MS			5000
 /** @brief timeout por si no ingreso ninguna contraseña */
-#define ALARMA_TIMEOUT_ESPERANDO_PASS_MS					10000
+#define ALARMA_TIMEOUT_ESPERANDO_PASS_MS					5000
 /** @brief timeout para salir */
-#define ALARMA_TIMEOUT_SALIENDO_MS							60000
+#define ALARMA_TIMEOUT_SALIENDO_MS							5000
 /** @brief timeout para entrar */
-#define ALARMA_TIMEOUT_ENTRANDO_MS							60000
+#define ALARMA_TIMEOUT_ENTRANDO_MS							5000
 
 
 /** @brief cantidad de veces que se puede ingresar mal la clave */
@@ -50,7 +55,7 @@
 /** @brief string con el password. Deberia estar guardado en la flash y poder cambiarse desde un menu tecnico */
 #define ALARMA_STRING_PASSWORD		"1234"
 /** @brief string para avisar que voy a salir */
-#define ALARMA_STRING_SALIR			"salgo"
+#define ALARMA_STRING_SALIR			"S"
 /* =================================== [Definicion de tipos de datos] ============================= */
 
 /** @brief enumeracion con los estados de la maquina de estados de la alarma */
@@ -74,7 +79,7 @@ typedef struct {
 
 extern void inicializarSensores (void);
 extern void taskLeerSensores (void);
-extern void taskTimeout (timeout_t*tout);
+extern void taskTimeout (void);
 extern void taskAlarmaMEF (void);
 
 

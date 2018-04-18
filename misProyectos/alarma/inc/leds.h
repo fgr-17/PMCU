@@ -18,6 +18,10 @@
 
 #define DELAY_L				5
 #define BLINK_LED_PERIODO	50
+
+#define ENCENDER_LED(x) 	gpioWrite(x, ON)
+#define APAGAR_LED(x) 		gpioWrite(x, OFF)
+
 /* =========================================================================================
  * 					FCS EXTERNAS
  * =========================================================================================
@@ -25,8 +29,5 @@
 
 extern void taskActualizarLeds();
 extern void taskBlinkLed(void);
-
-extern int32_t tareaBlinkyID;
-
 
 #endif /* MISPROYECTOS_EJER3_TEMPLATE_INC_LEDS_H_ */

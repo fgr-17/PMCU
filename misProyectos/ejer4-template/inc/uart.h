@@ -13,8 +13,8 @@
  * ======================================================================================
  */
 
-#define UART_GET_CHAR_TIME_PERIOD 25
-#define UART_PUT_CHAR_TIME_PERIOD 25
+#define UART_GET_CHAR_TIME_PERIOD 50
+#define UART_PUT_CHAR_TIME_PERIOD 50
 
 #define UART_BAUD_RATE 115200
 /* ======================================================================================
