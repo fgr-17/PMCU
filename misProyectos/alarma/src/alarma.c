@@ -114,7 +114,7 @@ void taskAlarmaMEF (void)
 			lineaColaAString(cadena, CADENA_L, &colaRx);						// saco linea de la cola de datos a un string
 
 			if(strcmp(cadena, ALARMA_STRING_PASSWORD) == 0) {
-				mensajeAlarma("Alarma armada.\nTiene 60s para salir.");
+				mensajeAlarma("Armando alarma\nTiene 60s para salir.");
 				activarTimeout(&tout1, ALARMA_TIMEOUT_SALIENDO_MS);			// empiezo a contar timeout para salir
 				APAGAR_LED(ALARMA_LED_ESPERANDO_PASS);
 				sensoresLimpiarEstados();
@@ -156,6 +156,7 @@ void taskAlarmaMEF (void)
 			tout1.estado = INACTIVO;										// bajo el flag del timeout
 			cantidadIntentosClaveMal = 0;									// reinicio el contador de intentos
 			// APAGAR_LED(ALARMA_LED_ESPERANDO_PASS);
+			mensajeAlarma("Finalizacion del tiempo de salida. Alarma armada");
 			ENCENDER_LED(ALARMA_LED_ARMADA);
 			sensoresLimpiarEstados();
 			alarmaEstado = ARMADA;											// voy al estado armada
@@ -164,6 +165,7 @@ void taskAlarmaMEF (void)
 		else if(sensorVentanaActivado()) {
 			mensajeAlarma("ATENCION!\nSE ACTIVO LA ALARMA");
 			sensoresLimpiarEstados();
+			colaRx.datosNuevos = 0;											// descarto que hayan quedado datos de teclado
 			alarmaEstado = DISPARADA;
 		}
 		break;
@@ -174,12 +176,14 @@ void taskAlarmaMEF (void)
 			APAGAR_LED(ALARMA_LED_ARMADA);
 			mensajeAlarma("ATENCION!\nSE ACTIVO LA ALARMA");
 			sensoresLimpiarEstados();
+			colaRx.datosNuevos = 0;											// descarto que hayan quedado datos de teclado
 			alarmaEstado = DISPARADA;
 		}
 		else if(sensorPuertaActivado()) {
 			APAGAR_LED(ALARMA_LED_ARMADA);
 			sensoresLimpiarEstados();
 			alarmaEstado = USUARIO_ENTRANDO;
+			colaRx.datosNuevos = 0;											// descarto que hayan quedado datos de teclado
 			mensajeAlarma("Usuario ingresando. Ingrese la clave:");
 			activarTimeout(&tout1, ALARMA_TIMEOUT_ENTRANDO_MS);				// empiezo a contar timeout para ENTRAR
 		}
@@ -189,7 +193,7 @@ void taskAlarmaMEF (void)
 
 		if(colaRx.datosNuevos){												// pregunto si tengo datos nuevos
 			colaRx.datosNuevos = 0;											// bajo el flag de datos nuevos
-			lineaColaAString(cadena, CADENA_L, &colaRx);						// saco linea de la cola de datos a un string
+			lineaColaAString(cadena, CADENA_L, &colaRx);					// saco linea de la cola de datos a un string
 
 			if(strcmp(cadena, ALARMA_STRING_PASSWORD) == 0) {
 				mensajeAlarma("Alarma desarmada");

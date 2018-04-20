@@ -22,8 +22,8 @@
 
 /** leds utilizados para estados y sensores*/
 #define ALARMA_LED_DESARMADA				LEDG
-#define ALARMA_LED_ARMADA					LED1
-#define ALARMA_LED_DISPARADA				LED1
+#define ALARMA_LED_ARMADA					LEDR
+#define ALARMA_LED_DISPARADA				LEDR
 #define ALARMA_LED_ESPERANDO_PASS			LEDB
 #define ALARMA_LED_VENTANA1					LED1
 #define ALARMA_LED_VENTANA2					LED2

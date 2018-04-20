@@ -85,7 +85,7 @@ int main( void ){
 	boardConfig();
 	// Inicializar UART_USB como salida de consola
 	debugPrintConfigUart( UART_USB, UART_BAUD_RATE );
-	debugPrintlnString("UART_USB configurada.\n\r" );
+	// debugPrintlnString("UART_USB configurada.\n\r" );
 
 	inicializarTaskAlarmaMEF();
 	InicializarUART();
@@ -111,6 +111,7 @@ int main( void ){
 	debugPrintlnString(menu);
 
 	//printString(UART_USB, 27);
+
 
 	while(TRUE) {
 		//Ejecutar tareas
