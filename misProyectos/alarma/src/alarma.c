@@ -114,7 +114,7 @@ void taskAlarmaMEF (void)
 			lineaColaAString(cadena, CADENA_L, &colaRx);						// saco linea de la cola de datos a un string
 
 			if(strcmp(cadena, ALARMA_STRING_PASSWORD) == 0) {
-				mensajeAlarma("Armando alarma\nTiene 60s para salir.");
+				mensajeAlarma("Armando alarma.\nTiene 60s para salir.");
 				activarTimeout(&tout1, ALARMA_TIMEOUT_SALIENDO_MS);			// empiezo a contar timeout para salir
 				APAGAR_LED(ALARMA_LED_ESPERANDO_PASS);
 				sensoresLimpiarEstados();
